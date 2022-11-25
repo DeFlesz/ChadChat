@@ -2,7 +2,7 @@
 
 import {defineComponent, onMounted, ref} from "vue";
 import Chatbubble from "./Chatbubble.vue";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 const socket = io("26.102.87.246:3000", { query: {username: "Hubert"}})
 
 function messageSubmit(ev : Event) {
