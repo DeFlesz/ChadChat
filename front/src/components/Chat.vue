@@ -2,23 +2,14 @@
 
 import {defineComponent, onMounted, ref} from "vue";
 import Chatbubble from "./Chatbubble.vue";
-
-
+import { io } from "socket.io-client";
+const socket = io("26.102.87.246:3000", { query: {username: "Hubert"}})
 
 function messageSubmit(ev : Event) {
   ev.preventDefault()
-  testAdd()
+
 }
 
-const testArr = ref([0, 1, 2, 3])
-
-function slotChange(ev : Event) {
-  console.log("damn")
-}
-
-function testAdd() {
-  testArr.value.push(1)
-}
 
 const messages  = ref<HTMLDivElement | null>(null)
 
@@ -38,9 +29,9 @@ function observer() {
 
 <template>
   <div class="chat">
-    <div ref="messages" class="messages" @slotchange="slotChange" >
+    <div ref="messages" class="messages">
 
-      <Chatbubble v-for="item in testArr" me message="Damn wtf what is hadafsdsaf adfsgh afsghd a fppenni" user="me"></Chatbubble>
+      <Chatbubble me message="Damn wtf what is hadafsdsaf adfsgh afsghd a fppenni" user="me"></Chatbubble>
     </div>
     <div class="input">
       <form @submit="messageSubmit">

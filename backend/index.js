@@ -34,7 +34,7 @@ io.on('connection', (socket) => {
 
   //potential refactor - save username from hand shake to prevent spoofing
   socket.on("chat message", (username, msg) => {
-    socket.broadcast.emit("")
+    socket.broadcast.emit("chat message", username, msg);
   })
 
   socket.on("disconnect", () => {
