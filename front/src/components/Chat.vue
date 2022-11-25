@@ -1,13 +1,35 @@
 <script lang="ts" setup>
 
-import {defineComponent} from "vue";
+import {defineComponent, onMounted, ref} from "vue";
 import Chatbubble from "./Chatbubble.vue";
 
 
 
 function messageSubmit(ev : Event) {
   ev.preventDefault()
+  testAdd()
+}
 
+const testArr = ref([0, 1, 2, 3])
+
+function slotChange(ev : Event) {
+  console.log("damn")
+}
+
+function testAdd() {
+  testArr.value.push(1)
+}
+
+const messages  = ref<HTMLDivElement | null>(null)
+
+onMounted(() => {
+  const obs = new MutationObserver(observer);
+  obs.observe(messages.value!, {attributes: true, subtree: true, childList: true})
+})
+
+
+function observer() {
+  messages.value!.scroll(0, messages.value!.scrollHeight)
 
 }
 
@@ -16,24 +38,9 @@ function messageSubmit(ev : Event) {
 
 <template>
   <div class="chat">
-    <div class="messages">
-      <Chatbubble me message="Damn wtf what is hadafsdsaf adfsgh afsghd a fppenni" user="me"></Chatbubble>
-      <Chatbubble  message="Your mom happening" user="hater"></Chatbubble>
-      <Chatbubble  message="Nienawidze was" user="jakiś fucker"></Chatbubble>
-      <Chatbubble me message="Jestem kurwa sexy" user="me"></Chatbubble>
-      <Chatbubble me message="ZAjebisty normalnie jakiś nie wiem co powiedzieć szczerze, jestem sam sobą zaskoczony jak fajny ja jestem jeez no normalnie kocham sie" user="me"></Chatbubble>
-      <Chatbubble me message="Damn wtf what is hadafsdsaf adfsgh afsghd a fppenni" user="me"></Chatbubble>
-      <Chatbubble  message="Your mom happening" user="hater"></Chatbubble>
-      <Chatbubble  message="Nienawidze was" user="jakiś fucker"></Chatbubble>
-      <Chatbubble me message="Jestem kurwa sexy" user="me"></Chatbubble>
-      <Chatbubble me message="ZAjebisty normalnie jakiś nie wiem co powiedzieć szczerze, jestem sam sobą zaskoczony jak fajny ja jestem jeez no normalnie kocham sie" user="me"></Chatbubble>
-      <Chatbubble me message="Damn wtf what is hadafsdsaf adfsgh afsghd a fppenni" user="me"></Chatbubble>
-      <Chatbubble  message="Your mom happening" user="hater"></Chatbubble>
-      <Chatbubble  message="Nienawidze was" user="jakiś fucker"></Chatbubble>
-      <Chatbubble me message="Jestem kurwa sexy" user="me"></Chatbubble>
-      <Chatbubble me message="ZAjebisty normalnie jakiś nie wiem co powiedzieć szczerze, jestem sam sobą zaskoczony jak fajny ja jestem jeez no normalnie kocham sie" user="me"></Chatbubble>
+    <div ref="messages" class="messages" @slotchange="slotChange" >
 
-
+      <Chatbubble v-for="item in testArr" me message="Damn wtf what is hadafsdsaf adfsgh afsghd a fppenni" user="me"></Chatbubble>
     </div>
     <div class="input">
       <form @submit="messageSubmit">
