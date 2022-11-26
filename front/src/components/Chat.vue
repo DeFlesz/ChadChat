@@ -61,7 +61,7 @@ watch(message, () => {
     if (message.value == "") {
       socket.emit("user not typing")
       console.log("sent not typing event")
-
+      userTypingEventSent = false
     }
     else if(!userTypingEventSent)  {
       socket.emit("user typing")
@@ -85,7 +85,6 @@ function observer() {
 <template>
   <div class="chat">
     <div ref="messages" class="messages">
-
       <Chatbubble v-for="item in receivedMessages" :me="item.me" :message="item.msg" :user="item.username"></Chatbubble>
       <div class="typing">{{userTyping}}</div>
     </div>
