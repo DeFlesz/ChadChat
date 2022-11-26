@@ -41,7 +41,7 @@ io.on('connection', (socket) => {
   socket.on("disconnect", () => {
     console.log("user disconnected: " + username);
     //same as for connection, this time for getting disconnected
-    typingUsers.pop(username)
+    typingUsers = typingUsers.filter(v => v !== username)
     socket.broadcast.emit("user disconnected", username);
   })
 
@@ -51,7 +51,7 @@ io.on('connection', (socket) => {
   })
 
   socket.on("user not typing", () => {
-    typingUsers.pop(username)
+    typingUsers = typingUsers.filter(v => v !== username)
     announceTyping(socket)
   })
 })
