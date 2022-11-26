@@ -2,9 +2,7 @@
 
 import {defineComponent, onMounted, ref, watch} from "vue";
 import Chatbubble from "./Chatbubble.vue";
-import { io, Socket } from "socket.io-client";
-
-
+import { io } from "socket.io-client";
 
 const prop = defineProps({
   username: String,
@@ -25,10 +23,20 @@ const receivedMessages = ref<Array<{
   msg: string,
   me: boolean,
   info: string | null
+  private: boolean
 }>>([])
 
+const dmUsers  = ref<string[]>(["all"])
+const currentUser = ref<string>("all");
+
 socket.on("chat message", (username, msg) => {
-  receivedMessages.value.push({username:username, msg:msg, me:false, info: null})
+  receivedMessages.value.push({username:username, msg:msg, me:false, info: null, private: false})
+})
+
+socket.on("private chat message", (username, msg, to) => {
+    // only client side protection from receiving private message - yikes
+    if (prop.username! != to) { return } 
+  receivedMessages.value.push({username:username, msg:msg, me:false, info: null, private: true})
 })
 
 function messageSubmit(ev : Event) {
@@ -36,16 +44,19 @@ function messageSubmit(ev : Event) {
 
   if (message.value != "") {
     try {
-      socket.emit("chat message", message.value)
+      if (currentUser.value != "all") {
+        socket.emit("private chat message", message.value, currentUser.value)
+      } else {
+        socket.emit("chat message", message.value)
+      }
     } catch(e) {
       console.log(e);
     } finally {
-      receivedMessages.value.push({username: prop.username!, msg:message.value, me:true, info: null})
+      receivedMessages.value.push({username: prop.username!, msg:message.value, me:true, info: null, private: false})
       message.value = ""
     }
   }
 }
-
 
 const messages  = ref<HTMLDivElement | null>(null)
 const message = ref("");
@@ -55,10 +66,8 @@ onMounted(() => {
   obs.observe(messages.value!, {attributes: true, subtree: true, childList: true})
 })
 
-
 let userTypingEventSent = false
 const userTyping = ref("")
-
 
 socket.on("users typing", (msg : string[]) => {
   console.table(msg)
@@ -74,10 +83,11 @@ socket.on("users typing", (msg : string[]) => {
 
 function stringArrayToString(message : string[]) {
   console.log(message)
-  if (message.length > 1) {
+  if (message.length > 3) {
     return "Many users are typing..."
   }
-  return message[0] + " is typing..."
+
+  return message.join(", ") + ` ${message.length > 1 ? "are" : "is" } typing...`
 }
 
 watch(message, () => {
@@ -98,46 +108,28 @@ watch(message, () => {
   }
 })
 
-
 function observer() {
   messages.value!.scroll(0, messages.value!.scrollHeight)
 }
 
-
-const dmUser = ref<string>('')
-
-interface DMUser {
-  name: string,
-  current : boolean
-}
-
-const dmUsers  = ref<DMUser[]>([
-  {
-    name: "all",
-    current: true
-  },
-  {
-    name: "franek",
-    current: false
-  },
-  {
-    name: "piotrek",
-    current: false
-  },
-  {
-    name: "jasiek",
-    current: false
+socket.on("user disconnected", (username) => {
+  if (currentUser == username) {
+    currentUser.value = "all"
   }
-])
+})
 
+socket.on("user list update", (msg: string[]) => {
+  dmUsers.value = msg.filter(v => v !== prop.username!)
+  console.log(dmUsers);
 
-function setCurrentUser(user : DMUser) {
-  dmUsers.value.find(us => us.current == true)!.current = false
-  dmUsers.value.find(us => us.name == user.name)!.current = true
-  receivedMessages.value = []
+})
 
+function setCurrentUser(user : string) {
+  currentUser.value = user;
+
+  // I think that private messaging should work more as whisper does in minecraft
+  // receivedMessages.value = []
 }
-
 
 
 </script>
@@ -145,7 +137,7 @@ function setCurrentUser(user : DMUser) {
 <template>
   <div class="chat">
     <div ref="messages" class="messages">
-      <Chatbubble v-for="item in receivedMessages" :me="item.me" :message="item.msg" :user="item.username"></Chatbubble>
+      <Chatbubble v-for="item in receivedMessages" :me="item.me" :message="item.msg" :user="item.username" :priv="item.private"></Chatbubble>
       <div class="typing">{{userTyping}}</div>
     </div>
     <div class="input">
@@ -156,8 +148,8 @@ function setCurrentUser(user : DMUser) {
     </div>
   </div>
   <div class="userList">
-    <div v-for="user in dmUsers" class="user" :class="{userCurrent : user.current}" @click="setCurrentUser(user)">
-      {{user.name}}
+    <div v-for="user in dmUsers" class="user" :class="{userCurrent : currentUser == user}" @click="setCurrentUser(user)">
+      {{user}}
     </div>
 
   </div>
@@ -217,11 +209,13 @@ function setCurrentUser(user : DMUser) {
     width: 100%;
   }
   .typing {
+    font-style: italic;
+    color: gray;
     position: sticky;
     left: 2px;
-    margin-left: 5px;
+    margin-left: 10px;
     bottom: 1px;
-    margin-leftin: 0;
+    /* margin-leftin: 0; <- what was that? */
   }
   .user {
     cursor: pointer;

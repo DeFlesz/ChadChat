@@ -1,9 +1,12 @@
 <template>
-  <div class="messageWrapper" :class="{ right : me, left : !me }">
+  <div class="messageWrapper" :class="{ right : me, left : !me, priv: priv }">
 
     <div class="message">
       {{message}}
-      <div class="user">
+      <div v-if="priv" class="user">
+        {{user}} prywatnie
+      </div>
+      <div v-else class="user">
         {{user}}
       </div>
     </div>
@@ -18,7 +21,8 @@
 const props = defineProps({
   message : String,
   me : Boolean,
-  user : String
+  user : String,
+  priv: Boolean
 })
 
 </script>
@@ -48,6 +52,12 @@ const props = defineProps({
 
 }
 
+.priv .message {
+  font-style: italic;
+  border: black 1px solid;
+  background-color:darkgray;
+}
+
 .right {
   justify-content: right;
 }
@@ -61,11 +71,22 @@ const props = defineProps({
   font-size: 12px;
 }
 
+.priv .user {
+  width: max-content;
+  position: absolute;
+  left: 0;
+  bottom: -14px;
+  font-size: 12px;
+}
+
 .left .user {
-  right: 0;
+  left: 0;
   text-align: right;
 }
 
-
+.right .user {
+  right: 0;
+  text-align: right;
+}
 
 </style>
