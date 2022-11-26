@@ -41,6 +41,7 @@ io.on('connection', (socket) => {
   socket.on("disconnect", () => {
     console.log("user disconnected: " + username);
     //same as for connection, this time for getting disconnected
+    typingUsers.pop(username)
     socket.broadcast.emit("user disconnected", username);
   })
 
