@@ -41,6 +41,7 @@ io.on('connection', (socket) => {
   socket.on("disconnect", () => {
     console.log("user disconnected: " + username);
     //same as for connection, this time for getting disconnected
+    typingUsers.pop(username)
     socket.broadcast.emit("user disconnected", username);
   })
 
@@ -56,7 +57,7 @@ io.on('connection', (socket) => {
 })
 
 function announceTyping(socket) {
-  socket.emit("users typing", typingUsers.length > 2 ? "many users typing..." : typingUsers.join(", ") + " typing...")
+  socket.emit("users typing", typingUsers)
 }
 
 // might not work :)
