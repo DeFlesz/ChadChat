@@ -23,20 +23,29 @@ const receivedMessages = ref<Array<{
   msg: string,
   me: boolean,
   info: string | null
-  private: boolean
+  private: boolean,
+  isMessage: boolean
 }>>([])
 
 const dmUsers  = ref<string[]>(["all"])
 const currentUser = ref<string>("all");
 
+socket.on("user connected", (username) => {
+  receivedMessages.value.push({username:"", msg:`${username} has connected`, me:false, info: null, private: false, isMessage: false})
+})
+
+socket.on("user disconnected", (username) => {
+  receivedMessages.value.push({username:"", msg:`${username} has disconnected`, me:false, info: null, private: false, isMessage: false})
+})
+
 socket.on("chat message", (username, msg) => {
-  receivedMessages.value.push({username:username, msg:msg, me:false, info: null, private: false})
+  receivedMessages.value.push({username:username, msg:msg, me:false, info: null, private: false, isMessage: true})
 })
 
 socket.on("private chat message", (username, msg, to) => {
     // only client side protection from receiving private message - yikes
     if (prop.username! != to) { return } 
-  receivedMessages.value.push({username:username, msg:msg, me:false, info: null, private: true})
+  receivedMessages.value.push({username:username, msg:msg, me:false, info: null, private: true, isMessage: true})
 })
 
 function messageSubmit(ev : Event) {
@@ -52,7 +61,7 @@ function messageSubmit(ev : Event) {
     } catch(e) {
       console.log(e);
     } finally {
-      receivedMessages.value.push({username: prop.username!, msg:message.value, me:true, info: null, private: false})
+      receivedMessages.value.push({username: prop.username!, msg:message.value, me:true, info: null, private: false, isMessage: true})
       message.value = ""
     }
   }
@@ -137,7 +146,7 @@ function setCurrentUser(user : string) {
 <template>
   <div class="chat">
     <div ref="messages" class="messages">
-      <Chatbubble v-for="item in receivedMessages" :me="item.me" :message="item.msg" :user="item.username" :priv="item.private"></Chatbubble>
+      <Chatbubble v-for="item in receivedMessages" :me="item.me" :message="item.msg" :user="item.username" :priv="item.private" :is-message="item.isMessage"></Chatbubble>
       <div class="typing">{{userTyping}}</div>
     </div>
     <div class="input">

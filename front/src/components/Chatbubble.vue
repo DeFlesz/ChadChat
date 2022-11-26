@@ -1,7 +1,7 @@
 <template>
   <div class="messageWrapper" :class="{ right : me, left : !me, priv: priv }">
 
-    <div class="message">
+    <div v-if="isMessage" class="message">
       {{message}}
       <div v-if="priv" class="user">
         {{user}} prywatnie
@@ -10,7 +10,9 @@
         {{user}}
       </div>
     </div>
-
+    <div v-else class="announcement">
+      {{message}}
+    </div>
   </div>
 
 </template>
@@ -22,7 +24,8 @@ const props = defineProps({
   message : String,
   me : Boolean,
   user : String,
-  priv: Boolean
+  priv: Boolean,
+  isMessage: Boolean
 })
 
 </script>
@@ -40,6 +43,11 @@ const props = defineProps({
   border-radius: 12px;
   position: relative;
 
+}
+
+.announcement {
+  width: 100%;
+  text-align: center;
 }
 
 .left .message {
