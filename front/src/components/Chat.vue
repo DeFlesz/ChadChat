@@ -3,7 +3,14 @@
 import {defineComponent, onMounted, ref} from "vue";
 import Chatbubble from "./Chatbubble.vue";
 import { io, Socket } from "socket.io-client";
-const socket = io("http://26.102.87.246:3000", { query: {username: "Maciek"}, transports : ['websocket']})
+
+
+
+const prop = defineProps({
+  username: String
+})
+
+const socket = io("http://26.102.87.246:3000", { query: {username: prop.username}, transports : ['websocket']})
 socket.connect()
 
 const receivedMessages = ref<Array<{
@@ -25,7 +32,7 @@ function messageSubmit(ev : Event) {
     } catch(e) {
       console.log(e);
     } finally {
-      receivedMessages.value.push({username:"Hubert", msg:message.value, me:true})
+      receivedMessages.value.push({username: prop.username!, msg:message.value, me:true})
       message.value = ""
     }
   }
