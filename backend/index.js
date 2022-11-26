@@ -32,10 +32,12 @@ io.on('connection', (socket) => {
   console.log("user connected: " + username);
   //send message to all clients except the connecting one about user joining chat
   socket.broadcast.emit("user connected", username);
-  announceTyping(socket)
+  socket.broadcast.emit("users typing", typingUsers)
 
   //potential refactor - save username from hand shake to prevent spoofing
   socket.on("chat message", (msg) => {
+    console.log(username + " sent: " + msg);
+
     socket.broadcast.emit("chat message", username, msg);
   })
 
@@ -43,22 +45,26 @@ io.on('connection', (socket) => {
     console.log("user disconnected: " + username);
     //same as for connection, this time for getting disconnected
     typingUsers = typingUsers.filter(v => v !== username)
+    socket.broadcast.emit("users typing")
+
     socket.broadcast.emit("user disconnected", username);
   })
 
   socket.on("user typing", () => {
     typingUsers.push(username)
-    announceTyping(socket)
+    console.log(username + " is typing");
+    console.log(typingUsers);
+
+    socket.broadcast.emit("users typing", typingUsers)
   })
 
   socket.on("user not typing", () => {
     typingUsers = typingUsers.filter(v => v !== username)
-    announceTyping(socket)
+    console.log(username + " is not typing");
+    console.log(typingUsers);
+
+    socket.broadcast.emit("users typing", typingUsers)
   })
 })
-
-function announceTyping(socket) {
-  socket.emit("users typing", typingUsers)
-}
 
 // might not work :)
