@@ -59,6 +59,9 @@ socket.on("users typing", (msg : string[]) => {
 
     userTyping.value = (resultArr.length > 0) ? stringArrayToString(resultArr) : ""
   }
+  else {
+    userTyping.value = ""
+  }
 })
 
 function stringArrayToString(message : string[]) {
