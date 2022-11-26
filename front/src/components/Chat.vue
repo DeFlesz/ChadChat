@@ -3,7 +3,7 @@
 import {defineComponent, onMounted, ref} from "vue";
 import Chatbubble from "./Chatbubble.vue";
 import { io, Socket } from "socket.io-client";
-const socket = io("26.102.87.246:3000", { query: {username: "Hubert"}})
+const socket = io("http://26.102.87.246:3000", { query: {username: "Hubert"}, transports : ['websocket']})
 socket.connect()
 
 const receivedMessages = ref<Array<{
@@ -21,7 +21,7 @@ function messageSubmit(ev : Event) {
 
   if (message.value != "") {
     try {
-      socket.emit("chat message", "hubert", message.value)
+      socket.emit("chat message", "Hubert", message.value)
     } catch(e) {
       console.log(e);
     } finally {
