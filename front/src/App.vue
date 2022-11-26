@@ -7,10 +7,13 @@ const username = ref("")
 const server = ref("")
 const usernameAdded = ref(false)
 
+
+
 function subUsername(e : Event) {
   e.preventDefault()
   if (username.value != "" && server.value != "") usernameAdded.value= true
 }
+
 
 </script>
 
@@ -27,6 +30,7 @@ function subUsername(e : Event) {
     </div>
     <Chat v-if="usernameAdded" :username="username" :server="server"></Chat>
   </div>
+
 
 
 </template>

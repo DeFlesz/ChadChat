@@ -104,6 +104,42 @@ function observer() {
 }
 
 
+const dmUser = ref<string>('')
+
+interface DMUser {
+  name: string,
+  current : boolean
+}
+
+const dmUsers  = ref<DMUser[]>([
+  {
+    name: "all",
+    current: true
+  },
+  {
+    name: "franek",
+    current: false
+  },
+  {
+    name: "piotrek",
+    current: false
+  },
+  {
+    name: "jasiek",
+    current: false
+  }
+])
+
+
+function setCurrentUser(user : DMUser) {
+  dmUsers.value.find(us => us.current == true)!.current = false
+  dmUsers.value.find(us => us.name == user.name)!.current = true
+  receivedMessages.value = []
+
+}
+
+
+
 </script>
 
 <template>
@@ -118,8 +154,11 @@ function observer() {
         <it-button type="primary" size="big" round>send</it-button>
       </form>
     </div>
-
-
+  </div>
+  <div class="userList">
+    <div v-for="user in dmUsers" class="user" :class="{userCurrent : user.current}" @click="setCurrentUser(user)">
+      {{user.name}}
+    </div>
 
   </div>
 </template>
@@ -183,6 +222,13 @@ function observer() {
     margin-left: 5px;
     bottom: 1px;
     margin-leftin: 0;
+  }
+  .user {
+    cursor: pointer;
+  }
+
+  .userCurrent {
+    font-weight: bold;
   }
 
 </style>

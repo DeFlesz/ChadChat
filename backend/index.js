@@ -10,7 +10,7 @@ const io = new Server(server);
 // [x] Broadcast a message to connected users when someone connects or disconnects.
 // [x] Add support for nicknames.
 // [x] Don’t send the same message to the user that sent it. Instead, append the message directly as soon as he/she presses enter.
-// [] Add “{user} is typing” functionality.
+// [x] Add “{user} is typing” functionality.
 let typingUsers = [];
 // [] Show who’s online.
 let connections = [];
@@ -26,11 +26,15 @@ server.listen(3000, () => {
   console.log('listening on http://localhost:3000');
 });
 
+let activeUsers = ['all']
+
 // handle sockets
 io.on('connection', (socket) => {
   const username = socket.handshake.query.username;
+  activeUsers.push(username)
   console.log("user connected: " + username);
   //send message to all clients except the connecting one about user joining chat
+  socket.broadcast.emit("user list update", activeUsers)
   socket.broadcast.emit("user connected", username);
   socket.broadcast.emit("users typing", typingUsers)
 
@@ -43,10 +47,12 @@ io.on('connection', (socket) => {
 
   socket.on("disconnect", () => {
     console.log("user disconnected: " + username);
+    activeUsers = activeUsers.filter(element => element == username)
+    console.log(activeUsers)
     //same as for connection, this time for getting disconnected
     typingUsers = typingUsers.filter(v => v !== username)
     socket.broadcast.emit("users typing")
-
+    socket.broadcast.emit("user list update", activeUsers)
     socket.broadcast.emit("user disconnected", username);
   })
 
