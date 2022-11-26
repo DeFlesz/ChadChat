@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 
-import {defineComponent, onMounted, ref} from "vue";
+import {defineComponent, onMounted, ref, watch} from "vue";
 import Chatbubble from "./Chatbubble.vue";
 import { io, Socket } from "socket.io-client";
 
@@ -28,7 +28,7 @@ function messageSubmit(ev : Event) {
 
   if (message.value != "") {
     try {
-      socket.emit("chat message", prop.username!, message.value)
+      socket.emit("chat message", message.value)
     } catch(e) {
       console.log(e);
     } finally {
@@ -48,9 +48,31 @@ onMounted(() => {
 })
 
 
+let userTypingEventSent = false
+const userTyping = ref("")
+
+
+socket.on("users typing", (msg : string) => {
+  userTyping.value = msg
+})
+
+watch(message, () => {
+  try {
+    if (message.value == "") {
+      socket.emit("user not typing")
+    }
+    else if(!userTypingEventSent)  {
+      socket.emit("user typing")
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+})
+
+
 function observer() {
   messages.value!.scroll(0, messages.value!.scrollHeight)
-
 }
 
 
@@ -61,6 +83,7 @@ function observer() {
     <div ref="messages" class="messages">
 
       <Chatbubble v-for="item in receivedMessages" :me="item.me" :message="item.msg" :user="item.username"></Chatbubble>
+      <div class="typing">{{userTyping}}</div>
     </div>
     <div class="input">
       <form @submit="messageSubmit">
@@ -104,7 +127,8 @@ function observer() {
     display: flex;
     overflow-y: scroll;
     flex-direction: column;
-    padding-bottom: 20px;
+    /*padding-bottom: 20px;*/
+    position: relative;
   }
 
   .messages {
@@ -125,6 +149,13 @@ function observer() {
     align-items: center;
     display: flex;
     width: 100%;
+  }
+  .typing {
+    position: sticky;
+    left: 2px;
+    margin-left: 5px;
+    bottom: 1px;
+    margin-leftin: 0;
   }
 
 </style>
