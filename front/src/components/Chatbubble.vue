@@ -52,11 +52,12 @@ const props = defineProps({
 
 .left .message {
   background-color: lightgray;
+  border: darkgray;
 }
 
 .right .message {
   background-color: aliceblue;
-  border: olivedrab 1px solid;
+  border: lightskyblue 1px solid;
 
 }
 

@@ -13,7 +13,7 @@ const io = new Server(server)
 // [x] Don’t send the same message to the user that sent it. Instead, append the message directly as soon as he/she presses enter.
 // [x] Add “{user} is typing” functionality.
 // [x] Show who’s online.
-// [] Add private messaging.
+// [x] Add private messaging.
 
 //just some html response
 app.get('/', (req, res) => {
@@ -89,7 +89,7 @@ io.on('connection', (socket) => {
 
     // remove user from typinUsers storage
     typingUsers = typingUsers.filter(v => v !== username)
-    socket.broadcast.emit("users typing")
+    socket.broadcast.emit("users typing", typingUsers)
 
     // remove user from dmUsers storage
     dmUsers = dmUsers.filter(v => v !== username)
