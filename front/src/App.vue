@@ -4,11 +4,12 @@ import {ref} from "vue";
 
 
 const username = ref("")
+const server = ref("")
 const usernameAdded = ref(false)
 
 function subUsername(e : Event) {
   e.preventDefault()
-  usernameAdded.value= true
+  if (username.value != "" && server.value != "") usernameAdded.value= true
 }
 
 </script>
@@ -18,12 +19,13 @@ function subUsername(e : Event) {
   <div class="wrapper">
     <div class="username" v-if="!usernameAdded">
       <form @submit="subUsername">
-        <it-input placeholder="username" v-model="username"></it-input>
+        <it-input placeholder="username" v-model="username" required></it-input>
+        <it-input placeholder="server" v-model="server" required></it-input>
         <it-button type="primary" size="small">Submit</it-button>
       </form>
 
     </div>
-    <Chat v-if="usernameAdded" :username="username"></Chat>
+    <Chat v-if="usernameAdded" :username="username" :server="server"></Chat>
   </div>
 
 

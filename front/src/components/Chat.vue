@@ -7,20 +7,28 @@ import { io, Socket } from "socket.io-client";
 
 
 const prop = defineProps({
-  username: String
+  username: String,
+  server: String
 })
 
-const socket = io("http://26.102.87.246:3000", { query: {username: prop.username}, transports : ['websocket']})
-socket.connect()
+const socket = io(prop.server!, { query: {username: prop.username}, transports : ['websocket']})
+
+try {
+  socket.connect()
+}
+catch (e) {
+  console.log(e)
+}
 
 const receivedMessages = ref<Array<{
   username: string,
   msg: string,
-  me: boolean
+  me: boolean,
+  info: string | null
 }>>([])
 
 socket.on("chat message", (username, msg) => {
-  receivedMessages.value.push({username:username, msg:msg, me:false})
+  receivedMessages.value.push({username:username, msg:msg, me:false, info: null})
 })
 
 function messageSubmit(ev : Event) {
@@ -32,7 +40,7 @@ function messageSubmit(ev : Event) {
     } catch(e) {
       console.log(e);
     } finally {
-      receivedMessages.value.push({username: prop.username!, msg:message.value, me:true})
+      receivedMessages.value.push({username: prop.username!, msg:message.value, me:true, info: null})
       message.value = ""
     }
   }
