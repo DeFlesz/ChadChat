@@ -32,6 +32,7 @@ io.on('connection', (socket) => {
   console.log("user connected: " + username);
   //send message to all clients except the connecting one about user joining chat
   socket.broadcast.emit("user connected", username);
+  announceTyping(socket)
 
   //potential refactor - save username from hand shake to prevent spoofing
   socket.on("chat message", (msg) => {
