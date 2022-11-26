@@ -7,13 +7,13 @@ const { Server } = require("socket.io")
 const io = new Server(server);
 
 // TODO
-// [] Broadcast a message to connected users when someone connects or disconnects.
-// [] Add support for nicknames.
-// [] Don’t send the same message to the user that sent it. Instead, append the message directly as soon as he/she presses enter.
+// [x] Broadcast a message to connected users when someone connects or disconnects.
+// [x] Add support for nicknames.
+// [x] Don’t send the same message to the user that sent it. Instead, append the message directly as soon as he/she presses enter.
 // [] Add “{user} is typing” functionality.
-// let typingUsers = [];
+let typingUsers = [];
 // [] Show who’s online.
-// let connections = [];
+let connections = [];
 // [] Add private messaging.
 
 //just some html response
@@ -34,15 +34,29 @@ io.on('connection', (socket) => {
   socket.broadcast.emit("user connected", username);
 
   //potential refactor - save username from hand shake to prevent spoofing
-  socket.on("chat message", (username, msg) => {
+  socket.on("chat message", (msg) => {
     socket.broadcast.emit("chat message", username, msg);
   })
 
-  socket.on("disconnect", () => {
+  socket.on("disconnect", (socket) => {
     console.log("user disconnected: " + username);
     //same as for connection, this time for getting disconnected
     socket.broadcast.emit("user disconnected", username);
   })
+
+  socket.on("user typing", () => {
+    typingUsers.push(username)
+    announceTyping(socket)
+  })
+
+  socket.on("user not typing", () => {
+    typingUsers.pop(username)
+    announceTyping(socket)
+  })
 })
+
+function announceTyping(socket) {
+  socket.emit("users typing", typingUsers.length > 2 ? "many users typing..." : typingUsers.join(", ") + " typing...")
+}
 
 // might not work :)
