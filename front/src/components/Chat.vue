@@ -53,19 +53,16 @@ const userTyping = ref("")
 
 
 socket.on("users typing", (msg : string[]) => {
+  console.table(msg)
+  if (msg.length > 0) {
+    let resultArr = msg.filter(element => element != prop.username!)
 
-  let resultArr = msg.filter(element => element != prop.username!)
-
-  userTyping.value = stringArrayToString(resultArr)
+    userTyping.value = (resultArr.length > 0) ? stringArrayToString(resultArr) : ""
+  }
 })
 
-
-
-
-
-
-
 function stringArrayToString(message : string[]) {
+  console.log(message)
   if (message.length > 1) {
     return "Many users are typing..."
   }
