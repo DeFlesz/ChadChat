@@ -60,9 +60,13 @@ watch(message, () => {
   try {
     if (message.value == "") {
       socket.emit("user not typing")
+      console.log("sent not typing event")
+
     }
     else if(!userTypingEventSent)  {
       socket.emit("user typing")
+      console.log("sent typing event")
+      userTypingEventSent = true
     }
   }
   catch (e) {
