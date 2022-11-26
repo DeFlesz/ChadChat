@@ -52,9 +52,25 @@ let userTypingEventSent = false
 const userTyping = ref("")
 
 
-socket.on("users typing", (msg : string) => {
-  userTyping.value = msg
+socket.on("users typing", (msg : string[]) => {
+
+  let resultArr = msg.filter(element => element != prop.username!)
+
+  userTyping.value = stringArrayToString(resultArr)
 })
+
+
+
+
+
+
+
+function stringArrayToString(message : string[]) {
+  if (message.length > 1) {
+    return "Many users are typing..."
+  }
+  return message[0] + " is typing..."
+}
 
 watch(message, () => {
   try {
