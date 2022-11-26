@@ -4,14 +4,36 @@ import {defineComponent, onMounted, ref} from "vue";
 import Chatbubble from "./Chatbubble.vue";
 import { io, Socket } from "socket.io-client";
 const socket = io("26.102.87.246:3000", { query: {username: "Hubert"}})
+socket.connect()
+
+const receivedMessages = ref<Array<{
+  username: string,
+  msg: string,
+  me: boolean
+}>>([])
+
+socket.on("chat message", (username, msg) => {
+  receivedMessages.value.push({username:username, msg:msg, me:false})
+})
 
 function messageSubmit(ev : Event) {
   ev.preventDefault()
 
+  if (message.value != "") {
+    try {
+      socket.emit("chat message", "hubert", message.value)
+    } catch(e) {
+      console.log(e);
+    } finally {
+      receivedMessages.value.push({username:"Hubert", msg:message.value, me:true})
+      message.value = ""
+    }
+  }
 }
 
 
 const messages  = ref<HTMLDivElement | null>(null)
+const message = ref("");
 
 onMounted(() => {
   const obs = new MutationObserver(observer);
@@ -31,11 +53,11 @@ function observer() {
   <div class="chat">
     <div ref="messages" class="messages">
 
-      <Chatbubble me message="Damn wtf what is hadafsdsaf adfsgh afsghd a fppenni" user="me"></Chatbubble>
+      <Chatbubble v-for="item in receivedMessages" :me="item.me" :message="item.msg" :user="item.username"></Chatbubble>
     </div>
     <div class="input">
       <form @submit="messageSubmit">
-        <it-input type="text" placeholder="Aa"></it-input>
+        <it-input v-model="message" type="text" placeholder="Aa"></it-input>
         <it-button type="primary" size="big" round>send</it-button>
       </form>
     </div>
