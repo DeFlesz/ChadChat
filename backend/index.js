@@ -38,7 +38,7 @@ io.on('connection', (socket) => {
     socket.broadcast.emit("chat message", username, msg);
   })
 
-  socket.on("disconnect", (socket) => {
+  socket.on("disconnect", () => {
     console.log("user disconnected: " + username);
     //same as for connection, this time for getting disconnected
     socket.broadcast.emit("user disconnected", username);
