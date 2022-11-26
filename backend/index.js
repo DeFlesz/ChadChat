@@ -28,9 +28,10 @@ server.listen(3000, () => {
 
 // handle sockets
 io.on('connection', (socket) => {
-  console.log("user connected");
+  const username = socket.handshake.query.username;
+  console.log("user connected: " + username);
   //send message to all clients except the connecting one about user joining chat
-  socket.broadcast.emit("user connected", socket.handshake.query.username);
+  socket.broadcast.emit("user connected", username);
 
   //potential refactor - save username from hand shake to prevent spoofing
   socket.on("chat message", (username, msg) => {
@@ -38,9 +39,9 @@ io.on('connection', (socket) => {
   })
 
   socket.on("disconnect", () => {
-    console.log("user disconnected");
+    console.log("user disconnected: " + username);
     //same as for connection, this time for getting disconnected
-    socket.broadcast.emit("user disconnected", socket.handshake.query.username);
+    socket.broadcast.emit("user disconnected", username);
   })
 })
 
