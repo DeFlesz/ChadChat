@@ -188,7 +188,7 @@ function setCurrentUser(user : string) {
   }
 
   .chat > div {
-    width: 100%;
+    /* width: 100%; */
   }
   .messages {
     display: flex;
